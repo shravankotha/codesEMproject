@@ -12,7 +12,7 @@ directionCurrent = 'reverse'    # only applicable for 'twocoils' case. 'same'/'r
 # ---------------- UNCERTAIN PARAMETERS
 densityBronze_kgm3 = 8550   # NOTE: This is assumed. So the plots may give some error
                             # 8350 gives good result for Fig. 5 in paper
-                            # 
+                            # 8550 gives good result for Fig. 6 in paper
 
 # ---------------- PARAMETERS FROM OKRESS PAPER
 permeability_freeSpace_SI = 1.25714e-06
