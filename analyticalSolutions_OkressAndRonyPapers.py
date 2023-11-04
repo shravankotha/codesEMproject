@@ -7,15 +7,15 @@ import math
 import matplotlib.pyplot as plt
 
     
-loopType = 'twocoils'           # 'singlecoil'/'twocoils'
-directionCurrent = 'reverse'    # only applicable for 'twocoils' case. 'same'/'reverse'
+loopType = 'singlecoil'             # 'singlecoil'/'twocoils'
+directionCurrent = 'reverse'        # only applicable for 'twocoils' case. 'same'/'reverse'
 # ---------------- UNCERTAIN PARAMETERS
-densityBronze_kgm3 = 8550   # NOTE: This is assumed. So the plots may give some error
+densityBronze_kgm3 = 8350   # NOTE: This is assumed. So the plots may give some error
                             # 8350 gives good result for Fig. 5 in paper
                             # 8550 gives good result for Fig. 6 in paper
 
 # ---------------- PARAMETERS FROM OKRESS PAPER
-permeability_freeSpace_SI = 1.25714e-06
+permeability_freeSpace_SI = 1.256637e-06
 permeability_freeSpace_muOhmSperCm = permeability_freeSpace_SI*1E4
 newtonToDyne = 1E5
 cmToMeter = 1E-2           
@@ -30,6 +30,8 @@ distanceBetweenPlanesOfLoops_cm = 5
 
 listForceToWeightRatios = []
 listForceToWeightRatios_Rony = []
+listForceInNewtons = []
+listForceInNewtons_Rony = []
 for iDistance in range(0,len(listVerticalDistancesFromLoopCenter_cm)):
     verticalDistanceFromLoopCenter_cm = listVerticalDistancesFromLoopCenter_cm[iDistance]
     x = 2*math.pi*radiusSphere_cm*(frequency_Hz/(1000*resistivity_muOhmCm))**0.5    # See ur notes for this derivation
@@ -41,8 +43,6 @@ for iDistance in range(0,len(listVerticalDistancesFromLoopCenter_cm)):
         G_x = 1 - (3/(2*x))
         G_x_Rony = 1 - (3/(2*x_Rony))
      
-    print('x,x_Rony:',x,x_Rony)
-    print('G_x,G_x_Rony:',G_x,G_x_Rony)
     y = verticalDistanceFromLoopCenter_cm/radiusLoop_cm
     A_y = y/((1+y**2)**4)    
     y1 = y - (distanceBetweenPlanesOfLoops_cm/radiusLoop_cm)
@@ -55,19 +55,34 @@ for iDistance in range(0,len(listVerticalDistancesFromLoopCenter_cm)):
     
     if loopType.lower() == "singlecoil":
         Force = (3/50)*((math.pi)**2)*(currentCoil1RMS_amp**2)*G_x*A_y*((radiusSphere_cm/radiusLoop_cm)**3) # <----- dynes
+        listForceInNewtons.append(Force/newtonToDyne)
         listForceToWeightRatios.append(100*Force/sphereWeight)
     elif loopType.lower() == "twocoils":    
         Force = (3/50)*((math.pi)**2)*(currentCoil1RMS_amp**2)*G_x*B_y*((radiusSphere_cm/radiusLoop_cm)**3) # <----- dynes
+        listForceInNewtons.append(Force/newtonToDyne)
         listForceToWeightRatios.append(100*Force/sphereWeight)
         Force_Rony = (3/2)*((math.pi))*permeability_freeSpace_muOhmSperCm*(currentCoil1RMS_amp**2)*G_x*B_y*((radiusSphere_cm/radiusLoop_cm)**3)*10 # <----- dynes (factor 10 is convert the muOhmSperCm*Amp^2=1E-4Newtons units to dynes (1N=1E5dynes))
+        listForceInNewtons_Rony.append(Force_Rony/newtonToDyne)
         listForceToWeightRatios_Rony.append(100*Force_Rony/sphereWeight)
                 
     print('verticalDistance,Force,weight,Force/Weight:',verticalDistanceFromLoopCenter_cm,Force,sphereWeight,Force/sphereWeight)    
+    
+# plot force
+plt.plot(listVerticalDistancesFromLoopCenter_cm,listForceInNewtons,'-',c='black',label="Okress")
+if loopType.lower() == "twocoils":
+    plt.plot(listVerticalDistancesFromLoopCenter_cm,listForceInNewtons_Rony,'--',c='red',marker="o",markersize=1,label="Rony")
+
+plt.xlabel('distanceZ (cm)')
+plt.ylabel('Force (N)')
+plt.legend(loc='upper center',ncol=2,borderpad=0.2,columnspacing=0.5,handletextpad=0.05)
+plt.show()
+
+# plot force/weight ratio        
 plt.plot(listVerticalDistancesFromLoopCenter_cm,listForceToWeightRatios,'-',c='black',label="Okress")
 if loopType.lower() == "twocoils":
     plt.plot(listVerticalDistancesFromLoopCenter_cm,listForceToWeightRatios_Rony,'--',c='red',marker="o",markersize=1,label="Rony")
 
 plt.xlabel('distanceZ (cm)')
-plt.ylabel('Force/Weight (%)')
+plt.ylabel('(Force/Weight)*100')
 plt.legend(loc='upper center',ncol=2,borderpad=0.2,columnspacing=0.5,handletextpad=0.05)
 plt.show()
