@@ -58,8 +58,7 @@ for iStep in range(0,len(stepNames)):
         frameData = stepObject.frames[frameNosToExport[frameNumber]]
         stepTime = frameData.frameValue
         timeTotal = timeTotal_prevStep + stepTime
-        file_output.write('%20.8E\t' %timeTotal)
-        print 'step: ',iStep + 1, '/',len(stepNames),' stepName: ', stepNames[iStep], ' stepTime=',stepTime, ' totalTime: ',timeTotal
+        file_output.write('%20.8E\t' %timeTotal)        
 
         fieldVariableObject = frameData.fieldOutputs[variableName].getSubset(region=elementSetObjectRequired)
         fieldVariableFieldValues = fieldVariableObject.values  
@@ -82,6 +81,8 @@ for iStep in range(0,len(stepNames)):
             for iComponent in range(0,nComponentsVariable):
                 fieldData = ifieldVariableField.data[iComponent]
                 volumetricTotalFieldComponents[iComponent] = volumetricTotalFieldComponents[iComponent] +  fieldData*volumeElement
+
+        print 'step: ',iStep + 1, '/',len(stepNames),' stepName: ', stepNames[iStep], ' stepTime=',stepTime, ' totalTime: ',timeTotal, ' setVolume: ', totalVolume
 
         forceResultant = 0
         for iComponent in range(0,nComponentsVariable):
